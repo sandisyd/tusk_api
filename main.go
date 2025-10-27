@@ -15,6 +15,6 @@ func main() {
 		
 		c.JSON(http.StatusOK, "Welcome to my API")
 	})
-
-	router.Run()
+	router.Static("/attachment", "./attachment")
+	router.Run("localhost:8080")
 }
