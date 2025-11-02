@@ -2,9 +2,9 @@ package models
 
 import "time"
 
-type Tasks struct {
-	Id uint `gorm:"type:int;primaryKey;autoIncrement" json:"id"`
-	UserId uint `gorm:"int;" json:"userId"`
+type Task struct {
+	Id int `gorm:"type:int;primaryKey;autoIncrement" json:"id"`
+	UserId int `gorm:"int;" json:"userId"`
 	Title string `gorm:"type:varchar(255)" json:"title"`
 	Description string `gorm:"type:text" json:"description"`
 	Status string `gorm:"type:varchar(50)" json:"status"`
@@ -17,5 +17,5 @@ type Tasks struct {
 	Attachment string `gorm:"type:varchar(255)" json:"attachment"`
 	CreatedAt time.Time `json:"cretedAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	User Users `gorm:"foreignKey:UserId" json:"user, omitempty"` //belongsTo
+	User User `gorm:"foreignKey:UserId" json:"user, omitempty"` //belongsTo
 }
