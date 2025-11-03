@@ -38,3 +38,33 @@ func (u *UserController) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+func (u *UserController) Register(c *gin.Context) {
+	user := models.User{}
+
+	errBind := c.ShouldBindJSON(&user)
+	if errBind != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errBind.Error()})
+		return;
+	}
+
+	password := user.Password
+
+	emailExist := u.DB.Where("email = ? ", user.Email).First(&user).RowsAffected != 0
+	if emailExist {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exist"})
+		return;
+	}
+
+	hashedPassword,_ := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
+
+	user.Password = string(hashedPassword)
+	user.Role = "Employee"
+
+	errDB := u.DB.Create(&user).Error
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, user)
+}

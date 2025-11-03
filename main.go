@@ -27,6 +27,7 @@ func main() {
 	})
 
 	router.POST("/users/login", userCt.Login)
+	router.POST("/users/register", userCt.Register)
 	router.Static("/attachment", "./attachment")
 	router.Run("localhost:8080")
 }
