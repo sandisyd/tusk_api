@@ -1,0 +1,48 @@
+package config
+
+import (
+	"fmt"
+	"tusk/models"
+
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+)
+
+const (
+	host = "localhost"
+	port = 8889
+	user = "root"
+	password = "root"
+	dbName = "tusk_db"
+)
+func DatabaseConnection() *gorm.DB {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", user,password,host,port,dbName)
+
+	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	
+	if err != nil{
+		panic(err)
+	}
+
+	return database
+}
+
+func CreateOwnerAccount(db *gorm.DB)  {
+	hashedPassword,_ := bcrypt.GenerateFromPassword([]byte("123456"),bcrypt.DefaultCost)
+
+	owner := models.User{
+		Role: "Admin",
+		Name: "Owner",
+		Password: string(hashedPassword),
+		Email: "owner@gom.id",
+}
+
+if db.Where("email=?", owner.Email).First(&owner).RowsAffected == 0 {
+	db.Create(&owner)
+}else{
+	fmt.Println(
+		"Owner exist",
+	)
+}
+}
