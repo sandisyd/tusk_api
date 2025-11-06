@@ -68,3 +68,15 @@ func (u *UserController) Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+func (u *UserController) Delete(c *gin.Context) {
+	id := c.Param("id")
+	
+
+	errDB := u.DB.Delete(&models.User{},id).Error
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message":"Success deleted user"})
+}
