@@ -29,6 +29,7 @@ func main() {
 	router.POST("/users/login", userCt.Login)
 	router.POST("/users/register", userCt.Register)
 	router.DELETE("/users/:id", userCt.Delete)
+	router.GET("/users/employee", userCt.GetListUsersEmployee)
 	router.Static("/attachment", "./attachment")
 	router.Run("localhost:8080")
 }

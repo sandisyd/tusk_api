@@ -13,6 +13,7 @@ type UserController struct {
 	DB *gorm.DB
 }
 
+// function login
 func (u *UserController) Login(c *gin.Context) {
 	user := models.User{}
 
@@ -38,6 +39,8 @@ func (u *UserController) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+// function create users
 func (u *UserController) Register(c *gin.Context) {
 	user := models.User{}
 
@@ -68,6 +71,7 @@ func (u *UserController) Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+// function delete
 func (u *UserController) Delete(c *gin.Context) {
 	id := c.Param("id")
 	
@@ -79,4 +83,18 @@ func (u *UserController) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message":"Success deleted user"})
+}
+
+// function list users employee
+func (u *UserController) GetListUsersEmployee(c *gin.Context) {
+	users := []models.User{}
+	
+
+	errDB := u.DB.Where("role = ?", "Employee").Find(&users).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, users)
 }
