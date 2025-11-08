@@ -17,6 +17,7 @@ func main() {
 
 	// controller
 	userCt := controller.UserController{DB: db}
+	taskCt := controller.TaskController{DB: db}
 	// Router
 
 	router := gin.Default()
@@ -25,11 +26,14 @@ func main() {
 		
 		c.JSON(http.StatusOK, "Welcome to my API")
 	})
-
+	// route account
 	router.POST("/users/login", userCt.Login)
 	router.POST("/users/register", userCt.Register)
 	router.DELETE("/users/:id", userCt.Delete)
 	router.GET("/users/employee", userCt.GetListUsersEmployee)
+	
+	// route task
+	router.POST("/task", taskCt.CreateTask)
 	router.Static("/attachment", "./attachment")
 	router.Run("localhost:8080")
 }
