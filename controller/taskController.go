@@ -167,7 +167,28 @@ func (u *TaskController) FixedTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message":"Change Status to Queue"})
 }
 
+// approved task
+func (u *TaskController) ApprovedTask(c *gin.Context) {
+	id := c.Param("id")
+	approvedDate := c.PostForm("approvedDate")
+	// cek data di db
 
+	if err := u.DB.First(&models.Task{},id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found" })
+		return;
+	}
+	//  delete data
+	errDB := u.DB.Where("id=?", id).Updates(models.Task{
+		Status: "Approved",
+		ApprovedDate: approvedDate,
+	}).Error
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message":"Change Status to Approved"})
+}
 
 
 

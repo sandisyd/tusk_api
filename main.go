@@ -38,6 +38,7 @@ func main() {
 	router.PATCH("/task/:id/patch-sub", taskCt.PatchData)
 	router.PATCH("/task/:id/rejected", taskCt.RejectedTask)
 	router.PATCH("/task/:id/fixed", taskCt.FixedTask)
+	router.PATCH("/task/:id/approved", taskCt.ApprovedTask)
 
 
 	router.Static("/attachment", "./attachment")
