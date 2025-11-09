@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"tusk/models"
 
 	"github.com/gin-gonic/gin"
@@ -138,7 +139,33 @@ func (u *TaskController) RejectedTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message":"You're task was been rejected"})
 }
 
+// Fix to Queue
+func (u *TaskController) FixedTask(c *gin.Context) {
+	id := c.Param("id")
+	revision, errConv := strconv.Atoi(c.PostForm("revision"))
 
+	if errConv != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errConv.Error() })
+		return;
+	}
+	// cek data di db
+
+	if err := u.DB.First(&models.Task{},id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found" })
+		return;
+	}
+	//  delete data
+	errDB := u.DB.Where("id=?", id).Updates(models.Task{
+		Status: "Queue",
+		Revision: int8(revision),
+	}).Error
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message":"Change Status to Queue"})
+}
 
 
 
