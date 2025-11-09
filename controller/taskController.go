@@ -110,6 +110,42 @@ func (u *TaskController) PatchData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message":"Success Update data"})
 }
 
+// rejected task
+func (u *TaskController) RejectedTask(c *gin.Context) {
+	id := c.Param("id")
+	task := models.Task{}
+	reason := c.PostForm("reason")
+	rejectedDate := c.PostForm("rejectedDate")
+
+
+	// cek data di db
+
+	if err := u.DB.First(&task,id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Data not found" })
+		return;
+	}
+	//  delete data
+	errDB := u.DB.Where("id=?", id).Updates(models.Task{
+		Status: "Rejected",
+		Reason: reason,
+		RejectedDate: rejectedDate,
+	}).Error
+	if errDB != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message":"You're task was been rejected"})
+}
+
+
+
+
+
+
+
+
+
 // function list users employee
 func (u *TaskController) GetListUsersEmployee(c *gin.Context) {
 	users := []models.User{}
