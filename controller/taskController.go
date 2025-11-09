@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"os"
 	"tusk/models"
 
 	"github.com/gin-gonic/gin"
@@ -67,15 +68,28 @@ func (u *TaskController) Register(c *gin.Context) {
 // function delete
 func (u *TaskController) Delete(c *gin.Context) {
 	id := c.Param("id")
-	
+	task := models.Task{}
 
-	errDB := u.DB.Delete(&models.User{},id).Error
+	// cek data di db
+
+	if err := u.DB.First(&task,id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error":err.Error() })
+		return;
+	}
+
+	//  delete data
+	errDB := u.DB.Delete(&models.Task{},id).Error
 	if errDB != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error":errDB.Error() })
 		return;
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message":"Success deleted user"})
+	// cek attachment
+	if task.Attachment != "" {
+		os.Remove("attachment/" + task.Attachment)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message":"Success deleted task"})
 }
 
 // function list users employee

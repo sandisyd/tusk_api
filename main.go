@@ -34,6 +34,7 @@ func main() {
 	
 	// route task
 	router.POST("/task", taskCt.CreateTask)
+	router.DELETE("/task/:id", taskCt.Delete)
 	router.Static("/attachment", "./attachment")
 	router.Run("localhost:8080")
 }
