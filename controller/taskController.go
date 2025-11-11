@@ -220,5 +220,17 @@ func (u *TaskController) TaskReview(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
+// task progres
+func (u *TaskController) TaskProgress(c *gin.Context) {
+	tasks := []models.Task{}
+	errDB := u.DB.Preload("User").Where("status=?", "Progres").Order("submit_date ASC").Limit(2).Find(&tasks).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
+
 
 
