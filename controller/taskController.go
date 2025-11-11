@@ -190,20 +190,75 @@ func (u *TaskController) ApprovedTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message":"Change Status to Approved"})
 }
 
-
-
-
-
-// function list users employee
-func (u *TaskController) GetListUsersEmployee(c *gin.Context) {
-	users := []models.User{}
+// function find task by id
+func (u *TaskController) TaskbyId(c *gin.Context) {
+	task := models.Task{}
+	id := c.Param("id")
 	
-
-	errDB := u.DB.Where("role = ?", "Employee").Find(&users).Error
+	if errData := u.DB.First(&models.Task{}, id).Error; errData != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Not found" })
+		return;
+	}
+	errDB := u.DB.Preload("User").Find(&task, id).Error
 	if errDB != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
 		return;
 	}
 
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, task)
 }
+
+// task review
+func (u *TaskController) TaskReview(c *gin.Context) {
+	tasks := []models.Task{}
+	errDB := u.DB.Preload("User").Where("status=?", "Review").Order("submit_date ASC").Limit(2).Find(&tasks).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
+
+// task progres
+func (u *TaskController) TaskProgress(c *gin.Context) {
+	tasks := []models.Task{}
+	userId := c.Param("userId")
+	errDB := u.DB.Where("(status!=? AND user_id=?) OR (revision!=? AND user_id=?)", "Queue", userId, 0, userId).Order("updated_at DESC").Limit(5).Find(&tasks).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
+// task statistik
+func (u *TaskController) TaskStatistik(c *gin.Context) {
+	userId := c.Param("userId")
+
+	stat_progress := []map[string]interface{}{}
+	errDB := u.DB.Model(models.Task{}).Select("status, count(status) as total").Where("user_id=?", userId).Group("status").Find(&stat_progress).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, stat_progress)
+}
+
+// task by user and status
+func (u *TaskController) TaskStatus(c *gin.Context) {
+	tasks := []models.Task{}
+	userId := c.Param("userId")
+	status := c.Param("status")
+	errDB := u.DB.Where("(status=? AND user_id=?)", status, userId).Find(&tasks).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
+
+
+
