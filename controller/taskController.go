@@ -232,6 +232,33 @@ func (u *TaskController) TaskProgress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, tasks)
 }
+// task statistik
+func (u *TaskController) TaskStatistik(c *gin.Context) {
+	userId := c.Param("userId")
+
+	stat_progress := []map[string]interface{}{}
+	errDB := u.DB.Model(models.Task{}).Select("status, count(status) as total").Where("user_id=?", userId).Group("status").Find(&stat_progress).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, stat_progress)
+}
+
+// task by user and status
+func (u *TaskController) TaskStatus(c *gin.Context) {
+	tasks := []models.Task{}
+	userId := c.Param("userId")
+	status := c.Param("status")
+	errDB := u.DB.Where("(status=? AND user_id=?)", status, userId).Find(&tasks).Error
+	if errDB != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error":errDB.Error() })
+		return;
+	}
+
+	c.JSON(http.StatusOK, tasks)
+}
 
 
 
